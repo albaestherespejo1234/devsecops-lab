@@ -24,13 +24,13 @@ jobs:
       - name: Secret Scanning (Gitleaks)
         uses: gitleaks/gitleaks-action@v2
 
-      # 3. SAST con Semgrep (Usando el CLI oficial vía Python para cumplir las reglas de SAST)
+      # 3. SAST con Semgrep (Análisis de Código Estático)
       - name: SAST Scanning (Semgrep)
         run: |
           python3 -m pip install semgrep
           semgrep scan --config auto
 
-      # 4. Análisis IaC con Checkov
+      # 4. Análisis IaC con Checkov (Infraestructura como Código)
       - name: IaC Security Scanning (Checkov)
         uses: bridgecrewio/checkov-action@master
         with:
@@ -56,14 +56,14 @@ jobs:
           exit-code: '0'
           severity: 'CRITICAL,HIGH'
 
-      # 8. Generación de SBOM (Syft/Anchore)
+      # 8. Generación de SBOM (Software Bill of Materials)
       - name: Generate SBOM
         uses: anchore/sbom-action@v0
         with:
           image: 'app-sec-demo:${{ github.sha }}'
           artifact-name: 'sbom.spdx.json'
 
-      # 9. Subir Artifact de SBOM
+      # 9. Subir Artefacto de SBOM
       - name: Upload SBOM Artifact
         uses: actions/upload-artifact@v4
         with:
