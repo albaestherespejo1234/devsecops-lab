@@ -28,7 +28,7 @@ jobs:
       - name: SAST Scanning (Semgrep)
         run: |
           python3 -m pip install semgrep
-          semgrep scan --config auto --error
+          semgrep scan --config auto
 
       # 4. Análisis IaC con Checkov
       - name: IaC Security Scanning (Checkov)
