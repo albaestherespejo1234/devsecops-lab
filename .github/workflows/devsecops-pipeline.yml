@@ -16,23 +16,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout del código (Usando SHA fijado para SAST)
+      # 1. Checkout del código
       - name: Checkout Code
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        uses: actions/checkout@v4
 
       # 2. Análisis de Secretos (Gitleaks)
       - name: Secret Scanning (Gitleaks)
-        uses: gitleaks/gitleaks-action@286b20677a2d8a4e8d38e2ec035f1118fa30c946 # v2.3.9
+        uses: gitleaks/gitleaks-action@v2
 
-      # 3. Análisis SAST con Semgrep (Usando CLI nativo fijado para evitar errores de tags)
+      # 3. SAST con Semgrep (Usando el CLI oficial vía Python para cumplir las reglas de SAST)
       - name: SAST Scanning (Semgrep)
         run: |
           python3 -m pip install semgrep
           semgrep scan --config auto --error
 
-      # 4. Análisis IaC con Checkov (Terraform/Dockerfile)
+      # 4. Análisis IaC con Checkov
       - name: IaC Security Scanning (Checkov)
-        uses: bridgecrewio/checkov-action@9b70310bcd306d11740313070b940167d6b23085 # master
+        uses: bridgecrewio/checkov-action@master
         with:
           directory: '.'
           framework: 'terraform,dockerfile'
@@ -40,16 +40,16 @@ jobs:
 
       # 5. Configurar Docker Buildx
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@c10077c59e7423089456fd7a49ee926ebec58c14 # v3.7.0
+        uses: docker/setup-buildx-action@v3
 
-      # 6. Construir imagen Docker localmente para escaneo
+      # 6. Construir imagen Docker localmente
       - name: Build Docker Image for Analysis
         run: |
           docker build -t app-sec-demo:${{ github.sha }} .
 
       # 7. Escaneo de Vulnerabilidades en Contenedores (Trivy)
       - name: Container Security Scanning (Trivy)
-        uses: aquasecurity/trivy-action@18f2510ee396bbf4004029a2777f3a6409368972 # master
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'app-sec-demo:${{ github.sha }}'
           format: 'table'
@@ -58,14 +58,14 @@ jobs:
 
       # 8. Generación de SBOM (Syft/Anchore)
       - name: Generate SBOM
-        uses: anchore/sbom-action@68d0e7425ed51624c9c7f607144e503e1e2d93e7 # v0.17.0
+        uses: anchore/sbom-action@v0
         with:
           image: 'app-sec-demo:${{ github.sha }}'
           artifact-name: 'sbom.spdx.json'
 
       # 9. Subir Artifact de SBOM
       - name: Upload SBOM Artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@v4
         with:
           name: sbom-report
           path: sbom.spdx.json
