@@ -33,11 +33,13 @@ resource "aws_s3_bucket_versioning" "versionado" {
   }
 }
 
+#checkov:skip=CKV2_AWS_5: "No se adjunta a EC2 por ser un recurso de demostración en el lab"
 resource "aws_security_group" "sg_seguro" {
   name        = "sg_ssh_restringido"
   description = "Grupo de seguridad restringido para lab"
 
   ingress {
+    description = "Acceso SSH restringido a la red interna"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
